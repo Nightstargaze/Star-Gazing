@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Game page">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vast plains</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Acme" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <style>
+        body, html {
+            background-color: black; /* Set the background color to black */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+    </style>
+
+    <div class="Artum-header">
+        <h1 class="Artum-title">Vast Plains</h1>
+        <button class="header-button" onclick="showInventory()">Show Inventory</button>
+        <button class="header-button" onclick="resetProgress()">Reset Progress</button>
+        <button class="main-menu" onclick="mainmenu()">Go to main menu</button>
+    </div>
+
+    <div class="Plains">
+        <img src="pictures/plains.png" alt="Plains with a nearby lake in the distance">
+    </div>
+
+    <div class="moving-around">
+        <h3>Looking around you noticed a few things in the distance.</h3>
+    </div>
+
+    <div class="main-container">
+        <div class="Artum-content" id="artumContent">
+            <p>You suddenly found yourself sleeping in the middle of a vast grassy field. You feel the wind blowing gently on your face, the nice feel of grass, and the gentle heat of the sun.</p>
+            <p>You also noticed a few rocks that seem to have wet soil around them. They might be hiding something useful.</p>
+            <p>Theres also a dirt track just nearby that seems to lead somewhere.</p>
+        </div>
+
+        <div class="button-container">
+            <button class="to-the-lake" onclick="intothelake()">Approach the lake</button>
+            <button class="search-rocks" id="searchrocksBtn" onclick="searchRocks()">Search the rocks and pebbles</button>
+            <button class="to-the-village" id="tothevillageBtn" onclick="tothevillage()">Follow the dirt tracks</button>
+        </div>
+    </div>
+
+    <script>
+        function intothelake() {
+            window.location.href = "lakeside.html"; 
+        }
+
+        function mainmenu() {
+            window.location.href = "try.html";
+        }
+
+        function tothevillage() {
+            var contentDiv.getElementById('artumContent');
+            var contentDiv.getElementById('tothevillageBtn');
+
+            button.disabled = true;
+
+
+            contentDiv.innerHTML = "<p>As you walk along the dirt tracks through the vast plains, a serene calmness envelops you. The gentle rustle of the wind through the tall grass accompanies your footsteps, and you notice the distant calls of birds echoing across the open expanse. A pair of majestic eagles soar gracefully overhead, their keen eyes scanning the landscape below. You catch glimpses of vibrant wildflowers swaying in the breeze and delicate butterflies flitting from bloom to bloom. The songs of unseen birds fill the air, harmonizing with the rhythm of nature.</p>";
+
+            setTimeout(function() {
+                var randomEventChance = Math.floor(Math.random() * 100) + 1;
+
+                if (randomEventChance <= 30) { // 30% chance of a random event
+                    var randomEvent = Math.floor(Math.random() * 3) + 1; // Random number between 1 and 3 for different events
+                    switch(randomEvent) {
+                        case 1:
+                          contentDiv.innerHTML = "<p>You see that same eagle from before hunting a bunny from afar. But then again, it does not really concern you.</p>";
+                            break;
+                        case 2:
+                            contentDiv.innerHTML = "<p>You see a bunny jumped out of the bush as you passed by, you heart almost jumped out of your chest.</p>";
+                            break;
+                        case 3:
+                            contentDiv.innerHTML = "<p>You spot a group of deer grazing peacefully.</p>";
+
+                            break;
+                
+                    }
+
+                  } 
+                  else {
+                        contentDiv.innerHTML = "<p> You feel at ease from the peaceful atmosphere of the pains. And finally, you saw something in the distance</p>"
+                }
+
+                   setTimeout(function() {
+                    button.disabled = false;
+                    window.location.href = "village.html";
+                   }, 3000); 
+            }, 5000);
+        }
+
+          
+        function searchRocks() {
+            var contentDiv.getElementById('artumContent');
+            var contentDiv.getElementById('searchrocksBtn');
+
+            button.disabled = true;
+
+
+            var contentDiv = document.getElementById('artumContent');
+            contentDiv.innerHTML = "<p>Searching the rocks and pebbles...</p>";
+
+            setTimeout(function() {
+                button.disabled = false;
+                var findWormChance = Math.floor(Math.random() * 100) + 1;
+
+                if (findWormChance <= 50) { // 50% chance to find worms
+                    var wormCount = Math.floor(Math.random() * 5) + 1; // Random number of worms between 1 and 5
+                    alert("You found " + wormCount + " worms!");
+                    addToInventory("Worms", wormCount);
+                } else {
+                    alert("You didn't find any worms.");
+                }
+
+                // Restore the original content
+                contentDiv.innerHTML = `
+                    <p>You suddenly found yourself in the middle of a vast grassy field. You feel the wind blowing gently on your face, the nice feel of grass, and the gentle heat of the sun.</p>
+                    <p>You also noticed a few rocks that seem to have wet soil around them. They might be hiding something useful.</p>
+                `;
+            }, 5000); 
+        }
+
+        function addToInventory(item, count) {
+            // Check if inventory exists in localStorage
+            if (localStorage.getItem("inventory") === null) {
+                // If inventory doesn't exist, create it as an empty object
+                localStorage.setItem("inventory", JSON.stwaringify({}));
+            }
+
+            // Retrieve inventory from localStorage and parse it to JavaScript object
+            var inventory = JSON.parse(localStorage.getItem("inventory"));
+
+            // Check if the item already exists in the inventory
+            if (inventory[item] !== undefined) {
+                // If it exists, increment its count
+                inventory[item] += count;
+            } else {
+                // If it doesn't exist, add it to the inventory with the given count
+                inventory[item] = count;
+            }
+
+            // Update inventory in localStorage
+            localStorage.setItem("inventory", JSON.stringify(inventory));
+        }
+
+        function showInventory() {
+            // Retrieve inventory from localStorage
+            var inventory = JSON.parse(localStorage.getItem("inventory"));
+
+            // Debugging: Log the inventory to the console
+            console.log("Current inventory:", inventory);
+
+            // Check if inventory is empty or not initialized
+            if (!inventory || Object.keys(inventory).length === 0) {
+                alert("Your inventory is empty.");
+            } else {
+                // Display inventory items and their counts
+                var inventoryList = [];
+                for (var item in inventory) {
+                    inventoryList.push(item + " (" + inventory[item] + ")");
+                }
+                alert("Your current inventory: " + inventoryList.join(", "));
+            }
+        }
+
+        function resetProgress() {
+            localStorage.removeItem("inventory");
+            alert("Progress has been reset.");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Village</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Acme" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="Artum-header">
+        <h1 class="village-title">Village</h1>
+        <button class="header-button" onclick="showInventory()">Show Inventory</button>
+        <button class="header-button" onclick="resetProgress()">Reset Progress</button>
+        <button class="main-menu" onclick="mainmenu()">Go to main menu</button>
+    </div>
+
+    <div class="Artum-content" id="artumContent">
+        <p> A lively village is in front of you. There are people everywhere, and you noticed somethings in the streets. One of them are a small building with a sign that says "I BUY FISH".. other than that, theres nothing much. (WORK IN PROGRESS) </p>
+    </div>
+
+    <div class="small-village" id="village">
+        <img src="pictures/small-village.png" alt="A small but bustling Village">
+    </div>
+
+    <div class="button-container" id="villageButtons">
+        <button class="to-fishmonger" onclick="showFishmonger()">Go to Fishmonger's House</button>
+        <button class="back-to-the-plains" id="backToPlainsBtn" onclick="backtotheplains()"> Go back to the plains </button>
+        
+    </div>
+
+    <div class="fishmonger-house hidden" id="fishmongerHouse">
+        <h2>Fishmonger's House</h2>
+        <div class="button-container">
+            <button onclick="sellFish()">Sell Fish</button>
+            <button onclick="buyWorms()">Buy Worms</button>
+            <button class="back-to-village" onclick="showVillage()">Back to Village</button>
+        </div>
+    </div>
+
+    <script>
+        function addToInventory(item, count) {
+            if (localStorage.getItem("inventory") === null) {
+                localStorage.setItem("inventory", JSON.stringify({}));
+            }
+
+            var inventory = JSON.parse(localStorage.getItem("inventory"));
+
+            if (inventory[item] !== undefined) {
+                inventory[item] += count;
+            } else {
+                inventory[item] = count;
+            }
+
+            localStorage.setItem("inventory", JSON.stringify(inventory));
+        }
+
+        function showInventory() {
+            var inventory = JSON.parse(localStorage.getItem("inventory"));
+            console.log("Current inventory:", inventory);
+
+            if (!inventory || Object.keys(inventory).length === 0) {
+                alert("Your inventory is empty.");
+            } else {
+                var inventoryList = [];
+                for (var item in inventory) {
+                    inventoryList.push(item + " (" + inventory[item] + ")");
+                }
+                alert("Your current inventory: " + inventoryList.join(", "));
+            }
+        }
+
+        function resetProgress() {
+            localStorage.removeItem("inventory");
+            alert("Progress has been reset.");
+        }
+
+        function mainmenu() {
+            window.location.href = "try.html";
+        }
+
+        function showFishmonger() {
+            document.getElementById('village').classList.add('hidden');
+            document.getElementById('villageButtons').classList.add('hidden');
+            document.getElementById('fishmongerHouse').classList.remove('hidden');
+        }
+
+        function showVillage() {
+            document.getElementById('fishmongerHouse').classList.add('hidden');
+            document.getElementById('village').classList.remove('hidden');
+            document.getElementById('villageButtons').classList.remove('hidden');
+        }
+
+        function sellFish() {
+            var inventory = JSON.parse(localStorage.getItem("inventory"));
+
+            if (!inventory || Object.keys(inventory).length === 0) {
+                alert("You have no fish to sell.");
+                return;
+            }
+
+            var totalCoins = 0;
+            var fishPrices = {
+                "Trout": 10,
+                "Perch": 15,
+                "Carp": 20,
+                "Bass": 25,
+                "Cat-fish": 50,
+                "Huge Bass": 100,
+                "Rare Golden Fish": 500
+            };
+
+            for (var fish in inventory) {
+                if (fishPrices[fish]) {
+                    totalCoins += fishPrices[fish] * inventory[fish];
+                    delete inventory[fish];
+                }
+            }
+
+            if (totalCoins > 0) {
+                addToInventory("coins", totalCoins);
+                alert("You sold your fish for " + totalCoins + " coins.");
+            } else {
+                alert("You have no valuable fish to sell.");
+            }
+
+            localStorage.setItem("inventory", JSON.stringify(inventory));
+        }
+
+        function buyWorms() {
+            var inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+            var coins = inventory["coins"] || 0;
+            var prices = { "smallBundle": 5, "mediumBundle": 10, "largeBundle": 15 };
+            var choice = prompt("Enter the bundle size you want to buy (smallBundle, mediumBundle, largeBundle):");
+
+            if (prices[choice] !== undefined) {
+                if (coins >= prices[choice]) {
+                    addToInventory("Worms", prices[choice]);
+                    inventory["coins"] -= prices[choice];
+                    localStorage.setItem("inventory", JSON.stringify(inventory));
+                    alert("You bought a " + choice + " for " + prices[choice] + " coins.");
+                } else {
+                    alert("You don't have enough coins to buy this bundle.");
+                }
+            } else {
+                alert("Invalid bundle size.");
+            }
+        }
+
+        function backtotheplains() {
+
+            var contentDiv = document.getElementById('artumContent');
+            var button = document.getElementById('backToPlainsBtn');
+
+            button.disabled = true;
+
+
+            contentDiv.innerHTML = "<p>As you walk along the dirt tracks stepping away from the village, a serene calmness envelops you. The gentle rustle of the wind through the tall grass accompanies your footsteps, and you notice the distant calls of birds echoing across the open expanse. A pair of majestic eagles soar gracefully overhead, their keen eyes scanning the landscape below. You catch glimpses of vibrant wildflowers swaying in the breeze and delicate butterflies flitting from bloom to bloom. The songs of unseen birds fill the air, harmonizing with the rhythm of nature.</p>";
+
+            setTimeout(function() {
+                var randomEventChance = Math.floor(Math.random() * 100) + 1;
+
+                if (randomEventChance <= 30) { 
+                    var randomEvent = Math.floor(Math.random() * 3) + 1; 
+                    switch(randomEvent) {
+                        case 1:
+                          contentDiv.innerHTML = "<p>You see that same eagle from before hunting a bunny from afar. But then again, it does not really concern you.</p>";
+                            break;
+                        case 2:
+                            contentDiv.innerHTML = "<p>You see a bunny jumped out of the bush as you passed by, you heart almost jumped out of your chest.</p>";
+                            break;
+                        case 3:
+                            contentDiv.innerHTML = "<p>You spot a group of deer grazing peacefully.</p>";
+
+                            break;
+              
+                    }
+
+                  } 
+                  else {
+                        contentDiv.innerHTML = "<p> You feel at ease from the peaceful atmosphere of the pains. And finally, you saw something in the distance</p>"
+                }
+
+                   setTimeout(function() {
+                    button.disabled = false; 
+                   window.location.href = "Artum.html";
+                   }, 3000); 
+            }, 5000);
+        }
+
+             
+
+    
+    </script>
+</body>
+</html>

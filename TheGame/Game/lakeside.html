@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="lakeside" content="lakeside">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lakeside</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Acme" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="Artum-header">
+        <h1 class="Lake-title">Lake Side</h1>
+        <button class="header-button" onclick="showInventory()">Show Inventory</button>
+        <button class="header-button" onclick="resetProgress()">Reset Progress</button>
+        <button class="main-menu" onclick="mainmenu()">Go to main menu</button>
+    </div>
+
+    <div class="Artum-content" id="artumContent">
+        <!-- Your game content goes here -->
+        <p>You arrived at the lake, the air is filled with the crisp scent of water mingled with the earthy aroma of nearby foliage. The gentle ripples of the water create a soothing melody, punctuated by the occasional call of distant birds.</p>
+        <p>You gaze at the waters and see small fishes swimming around</p>
+    </div>
+
+    <div class="button-container"> 
+        <button class="fishing-button" onclick="startFishing()">Start Fishing</button>
+        <button class="walk-back-button" onclick="walkBackToPlains()">Walk Back to the Plains</button>
+    </div>
+
+    <div class="lakeside">
+        <img src="pictures/lakeside.png" alt="A peaceful lakeside">
+    </div>
+
+    <script>
+        // Function to start fishing
+        function startFishing() {
+            // Retrieve inventory from localStorage
+            var inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+            var hasWorms = inventory["Worms"] && inventory["Worms"] > 0;
+
+            // Change the content to show the loading screen
+            var contentDiv = document.getElementById('artumContent');
+
+            if (hasWorms) {
+                // Reduce the number of worms by 1
+                inventory["Worms"]--;
+                if (inventory["Worms"] === 0) {
+                    delete inventory["Worms"];
+                }
+                localStorage.setItem("inventory", JSON.stringify(inventory));
+                contentDiv.innerHTML = "<p>Fishing for fish..........</p>";
+            } else {
+                contentDiv.innerHTML = "<p>Fishing for some fish without a bait seems kinda silly.... but let's try anyway.</p>";
+            }
+
+            // Wait for 3 seconds before showing "Something took the bait!"
+            setTimeout(function() {
+                contentDiv.innerHTML = "<p>You cought something!!</p>";
+
+                // Wait another 2 seconds before showing the result
+                setTimeout(function() {
+                    var catchChance = Math.floor(Math.random() * 300) + 1;
+                    var caughtSomething = false;
+
+                    if (!hasWorms) {
+                        catchChance = Math.floor(Math.random() * 100) + 1; // Increase the difficulty by making it extremely unlikely
+                    }
+
+                    // Check for different fish types with varying difficulties
+                    if (catchChance > 295) { // 1.67% chance
+                        alert("You caught a Huge Bass! Enjoy your catch.");
+                        addToInventory("Huge Bass");
+                        caughtSomething = true;
+                    } else if (catchChance > 290) { // 1.67% chance
+                        alert("You caught a Cat-fish! Enjoy your catch.");
+                        addToInventory("Cat-fish");
+                        caughtSomething = true;
+                    } else if (catchChance > 280) { // 3.33% chance
+                        alert("You caught a Bass! Enjoy your catch.");
+                        addToInventory("Bass");
+                        caughtSomething = true;
+                    } else if (catchChance > 260) { // 6.67% chance
+                        alert("You caught a Trout! Enjoy your catch.");
+                        addToInventory("Trout");
+                        caughtSomething = true;
+                    } else if (catchChance > 240) { // 6.67% chance
+                        alert("You caught a Perch! Enjoy your catch.");
+                        addToInventory("Perch");
+                        caughtSomething = true;
+                    } else if (catchChance > 220) { // 6.67% chance
+                        alert("You caught a Carp! Enjoy your catch.");
+                        addToInventory("Carp");
+                        caughtSomething = true;
+                    } else if (catchChance > 210) { // 3.33% chance
+                        alert("You caught a Rare Golden Fish! Enjoy your catch.");
+                        addToInventory("Rare Golden Fish");
+                        caughtSomething = true;
+                    } else {
+                        alert("You actually just cought a worthless kelp that got dragged by the current, you threw it away... Wanna keep trying?");
+                    }
+
+                    // Restore the original content
+                    contentDiv.innerHTML = `
+                        <p>You arrived at the lake, the air is filled with the crisp scent of water mingled with the earthy aroma of nearby foliage. The gentle ripples of the water create a soothing melody, punctuated by the occasional call of distant birds.</p>
+                        <p>You gaze at the waters and see small fishes swimming around</p>
+                    `;
+                }, 1000); 
+            }, 2000); 
+        }
+
+        // Function to add item to inventory
+        function addToInventory(item) {
+            // Check if inventory exists in localStorage
+            if (localStorage.getItem("inventory") === null) {
+                // If inventory doesn't exist, create it as an empty object
+                localStorage.setItem("inventory", JSON.stringify({}));
+            }
+
+            // Retrieve inventory from localStorage and parse it to JavaScript object
+            var inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+
+            // Check if the item already exists in the inventory
+            if (inventory[item] !== undefined) {
+                // If it exists, increment its count
+                inventory[item]++;
+            } else {
+                // If it doesn't exist, add it to the inventory with count 1
+                inventory[item] = 1;
+            }
+
+            // Update inventory in localStorage
+            localStorage.setItem("inventory", JSON.stringify(inventory));
+        }
+
+        // Function to show inventory
+        function showInventory() {
+            // Retrieve inventory from localStorage
+            var inventory = JSON.parse(localStorage.getItem("inventory"));
+
+            // Debugging: Log the inventory to the console
+            console.log("Current inventory:", inventory);
+
+            // Check if inventory is empty or not initialized
+            if (!inventory || Object.keys(inventory).length === 0) {
+                alert("Your inventory is empty.");
+            } else {
+                // Display inventory items and their counts
+                var inventoryList = [];
+                for (var item in inventory) {
+                    inventoryList.push(item + " (" + inventory[item] + ")");
+                }
+                alert("Your current inventory: " + inventoryList.join(", "));
+            }
+        }
+
+        // Function to reset progress
+        function resetProgress() {
+            localStorage.removeItem("inventory");
+            alert("Progress has been reset.");
+        }
+
+        // Function to walk back to the plains
+        function walkBackToPlains() {
+            window.location.href = "Artum.html";
+        }
+
+        function mainmenu() {
+            window.location.href = "try.html";
+        }
+
+        // Initialize an empty inventory if it does not exist
+        if (localStorage.getItem("inventory") === null) {
+            localStorage.setItem("inventory", JSON.stringify({}));
+        }
+    </script>
+</body>
+</html>
